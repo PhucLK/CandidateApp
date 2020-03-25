@@ -7,6 +7,8 @@ package com.util;
 import java.text.ParseException;
 import java.util.Scanner;
 
+import org.apache.log4j.Logger;
+
 import com.exceptions.BirthdayException;
 import com.exceptions.MailException;
 
@@ -16,8 +18,10 @@ import com.exceptions.MailException;
  */
 public class UserInputUtil {
 
+	final static Logger logger = Logger.getLogger(UserInputUtil.class);
+
 	/**
-	 * @param value
+	 * @param sc
 	 * @return a valid int number
 	 */
 	public static int inputTypeInt(Scanner sc) {
@@ -28,6 +32,7 @@ public class UserInputUtil {
 				a = Integer.parseInt(value);
 			} catch (Exception e) {
 				// TODO: handle exception
+				logger.error(e.toString());
 				System.out.println("Please input int value!");
 				continue;
 			}
@@ -37,23 +42,25 @@ public class UserInputUtil {
 	}
 
 	/**
-	 * @param email
+	 * @param sc
 	 * @return String is a valid email
 	 */
 	public static String inputEmail(Scanner sc) {
 		String email = "";
-		System.out.println("Enter an email");
-		try {
-			email = sc.nextLine();
-			while (!Validator.isEmail(email)) {
+		while (true) {
+			try {
+				email = sc.nextLine();
+				if (!Validator.isEmail(email)) {
+					System.out.println("Sorry! Email not valid, Try again :");
+					continue;
+				} else
+					return email;
+			} catch (MailException e) {
+				logger.error(e.toString());
 				System.out.println("Sorry! Email not valid, Try again :");
+				continue;
 			}
-		} catch (MailException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
-
-		return email;
 	}
 
 	/**
@@ -61,38 +68,39 @@ public class UserInputUtil {
 	 * @return String is a valid phone number
 	 */
 	public static String inputPhone(Scanner sc) {
-		System.out.println("Enter an phone number");
-		String phone = sc.nextLine();
-
-		while (!Validator.isPhoneNumber(phone)) {
-			System.out.println("Sorry! Phone number not valid, Try again :");
+		String phone;
+		while (true) {
+			phone = sc.nextLine();
+			if (!Validator.isPhoneNumber(phone)) {
+				System.out.println("Sorry! Phone number not valid, Try again :");
+				continue;
+			} else
+				return phone;
 		}
-
-		return phone;
 	}
 
 	/**
 	 * @param sc
 	 * @return String is a valid birthday
-	 * @throws ParseException
+	 * 
 	 */
 	public static String inputBirthDay(Scanner sc) {
-		System.out.println("Enter an birthday(yyyy/MM/dd) :");
-		String birthday = sc.nextLine();
-
-		do {
+		String birthday = null;
+		while (true) {
 			try {
-				while (!Validator.isBirthDay(birthday)) {
+				birthday = sc.nextLine();
+				if (!Validator.isBirthDay(birthday)) {
 					System.out.println("Sorry! Birthday not valid, Try again :");
-				}
-			} catch (BirthdayException e) {
+					continue;
+				} else
+					return birthday;
+			} catch (BirthdayException | ParseException e) {
 				// TODO: handle exception
+				logger.error(e.toString());
 				System.out.println("Sorry! Birthday not valid, Try again :");
+				continue;
 			}
-			break;
-		} while (true);
-
-		return birthday;
+		}
 	}
 
 }

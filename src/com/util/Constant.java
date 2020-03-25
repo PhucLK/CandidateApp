@@ -10,6 +10,7 @@ package com.util;
  */
 public class Constant {
 	// Regex pattern
-	public static final String INCORECT_PHONE_NUMBER = "^(?:(?:\\\\\\\\+|0{0,2})84(\\\\\\\\s*[\\\\\\\\-]\\\\\\\\s*)?|[0]?)?[789]\\\\\\\\d{9}$";
-	public static final String INCORECT_EMAIL = "^[\\\\\\\\w!#$%&'*+/=?`{|}~^-]+(?:\\\\\\\\.[\\\\\\\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\\\\\\\.)+[a-zA-Z]{2,6}$";
+	public static final String INCORECT_PHONE_NUMBER = "\\d{10}";
+	public static final String INCORECT_EMAIL = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+
 }

@@ -6,13 +6,15 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
+
 /**
  * 
  * @author PhucTV7
  * 
  */
 public class JdbcConection {
-
+	final static Logger logger = Logger.getLogger(JdbcConection.class);
 	private static JdbcConection instance;
 	private Connection connection;
 
@@ -33,6 +35,7 @@ public class JdbcConection {
 
 		} catch (ClassNotFoundException | SQLException | IOException e) {
 			e.printStackTrace();
+			logger.error(e.toString());
 		}
 	}
 

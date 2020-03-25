@@ -21,9 +21,13 @@ public class TestConnectionPool {
 	 */
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
-		Connection connection = getCon();
+		getCon();
 	}
 
+	/**
+	 * @return
+	 * @throws IOException
+	 */
 	public static Connection getCon() throws IOException {
 		Connection connection = null;
 		ConnectionPool connectionPool;

@@ -12,44 +12,22 @@ public class SQLCommand {
 
 	// ----------------------SELECT
 
-	// experience
-	public static String EXPERIENCE_QUERY_FIND_ALL = "select * from [LK].[dbo].experience";
-	public static String CERTIFICATEEX_QUERY_FIND_ALL = "select * from [LK].[dbo].certificationEx where CandidateId=?";
-
-	// internship
-	public static String INTERNSHIP_QUERY_FIND_ALL = "select * from internship";
-	public static String CERTIFICATEIS_QUERY_FIND_ALL = "select * from [LK].[dbo].certificationIs where CandidateId=?";
-
-	// fresher
-	public static String FRESHER_QUERY_FIND_ALL = "select * from [LK].[dbo].fresher";
-	public static String CERTIFICATEFS_QUERY_FIND_ALL = "select * from [LK].[dbo].certificationFs where CandidateId=?";
-
-	// -----------------------INSERT
+	// candidate
+	public static final String CANDIDATE_QUERY_FIND_ONE = "select * from [candidate].[dbo].candidates where CandidateId=?";
 
 	// experience
-	public static String EXPERIENCE_QUERY_INSERT = "insert into [experience] (fullname, BirthDay, Phone, Email, experien_in_year,profecsional_skill,CandidateId) values (?, ?, ?, ?, ?, ?, ?)";
-	public static String CERTIFICATEEX_QUERY_INSERT = "insert into certificationEx (CandidateId,CertificatedID,CertificateName,CertificatedDate,CertificateRank) values (?, ?, ?, ?, ?)";
-
+	public static final String EXPERIENCE_JOIN_CANDIDATE = "SELECT idEx,CandidateId, fullname, birthday, phone, email, ExpInYear, ProSkill FROM [candidate].[dbo].candidates c INNER JOIN [candidate].[dbo].experience e ON c.id = e.idEx";
+	public static final String EXPERIENCE_QUERY_FIND_ONE = "SELECT idEx,CandidateId, fullname, birthday, phone, email, ExpInYear, ProSkill FROM [candidate].[dbo].candidates c  INNER JOIN [candidate].[dbo].experience e ON c.id = e.idEx where CandidateId=?";
+	
 	// internship
-	public static String INTERNSHIP_QUERY_INSERT = "insert into [experience] (fullname, BirthDay, Phone, Email, Majors,Semester,University,CandidateId) values (?, ?, ?, ?, ?, ?, ?)";
-	public static String CERTIFICATEIS_QUERY_INSERT = "insert into certificationEx (CandidateId,CertificatedID,CertificateName,CertificatedDate,CertificateRank) values (?, ?, ?, ?, ?)";
+	public static final String INTERNSHIP_JOIN_CANDIDATE = "SELECT idIs,CandidateId, fullname, birthday, phone, email, majors, semester,university FROM [candidate].[dbo].candidates c INNER JOIN [candidate].[dbo].internship i ON c.id = i.idIs";
+	public static final String INTERNSHIP_QUERY_FIND_ONE = "select * from [candidate].[dbo].internship where idIs=?";
 
 	// fresher
-	public static String FRESHER_QUERY_INSERT = "insert into [fresher] (fullname, BirthDay, Phone, Email, Graduation_date,Graduation_rank,Education,CandidateId) values (?, ?, ?, ?, ?, ?, ?)";
-	public static String CERTIFICATEFS_QUERY_INSERT = "insert into certificationFs (CandidateId,CertificatedID,CertificateName,CertificatedDate,CertificateRank) values (?, ?, ?, ?, ?)";
+	public static final String FRESHER_JOIN_CANDIDATE = "SELECT idFs,CandidateId, fullname, birthday, phone, email,Graduation_date, Graduation_rank,Education FROM [candidate].[dbo].candidates c INNER JOIN [candidate].[dbo].fresher f ON c.id = f.idFs";
+	public static final String FRESHER_QUERY_FIND_ONE = "select * from [candidate].[dbo].fresher where idFs=?";
 
-	// -------------------------EDIT
-
-	// experience
-	public static String EXPERIENCE_QUERY_EDIT_BY_ID = "update [LK].[dbo].experience set fullname=?,birthday=?,phone=?,email=?,experien_in_year=?,profecsional_skill=? where CandidateId=?";
-	public static String CERTIFICATEEX_QUERY_EDIT_BY_ID = "update [LK].[dbo].certificationEx set CertificatedID=?,CertificateName=?,CertificateRank=?,CertificatedDate=? where CandidateId=?";
-
-	// internship
-	public static String INTERNSHIP_QUERY_EDIT_BY_ID = "update [LK].[dbo].InternShip set fullname=?,birthday=?,phone=?,email=?,Majors=?,Semester=?,University=? where CandidateId=?";
-	public static String CERTIFICATEIS_QUERY_EDIT_BY_ID = "update [LK].[dbo].certificationIs set CertificatedID=?,CertificateName=?,CertificateRank=?,CertificatedDate=? where CandidateId=?";
-
-	// fresher
-	public static String FRESHER_QUERY_EDIT_BY_ID = "update [LK].[dbo].fresher set fullname=?,birthday=?,phone=?,email=?,Graduation_date=?,Graduation_rank=?,Education=? where CandidateId=?";
-	public static String CERTIFICATEFS_QUERY_EDIT_BY_ID = "update [LK].[dbo].certificationFs set CertificatedID=?,CertificateName=?,CertificateRank=?,CertificatedDate=? where CandidateId=?";
+	// certificate
+	public static final String CERTIFICATION_QUERY_FIND_ONE = "select * from [candidate].[dbo].certification where id=?";
 
 }

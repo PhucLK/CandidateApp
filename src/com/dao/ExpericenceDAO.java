@@ -8,12 +8,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import com.enums.Candidate_type;
-import com.exceptions.BirthdayException;
 import com.model.Certification;
 import com.model.Experience;
 import com.util.JdbcConection;
@@ -24,56 +24,44 @@ import com.util.SQLCommand;
  *
  */
 public class ExpericenceDAO {
-
+	
+	final static Logger logger = Logger.getLogger(ExpericenceDAO.class);
 	private static Connection conn;
 	private static PreparedStatement preparedStmt;
+	private static ResultSet resultSet;
 
 	/**
 	 * @param ex
 	 * @return true if save candidate success, otherwise return false
-	 * @throws ClassNotFoundException
 	 */
 	public static boolean saveEx(Experience ex) {
 
+		
+		int id = CandidateDAO.saveC(ex);
 		try {
-			conn = JdbcConection.getInstance().getConnection();
-			// the mysql insert statement
-			String query = SQLCommand.INTERNSHIP_QUERY_INSERT;
-			String query2 = SQLCommand.CERTIFICATEEX_QUERY_INSERT;
+			if (id > 0) {
+				conn = JdbcConection.getInstance().getConnection();
+				String query = SQLCommand.EXPERIENCE_QUERY_FIND_ONE;
+				preparedStmt = conn.prepareStatement(query, ResultSet.TYPE_SCROLL_SENSITIVE,
+						ResultSet.CONCUR_UPDATABLE);
+				preparedStmt.setInt(1, id);
+				resultSet = preparedStmt.executeQuery();
 
-			// create the sql insert preparedstatement
-			preparedStmt = conn.prepareStatement(query);
-			preparedStmt = conn.prepareStatement(query2);
-
-			preparedStmt.setString(1, ex.getFullName());
-			preparedStmt.setString(2, ex.getBirthDay());
-			preparedStmt.setString(3, ex.getPhone());
-			preparedStmt.setString(4, ex.getEmail());
-			preparedStmt.setInt(5, ex.getExpInYear());
-			preparedStmt.setString(6, ex.getProSkill());
-			preparedStmt.setInt(7, ex.getCandidateId());
-			int a = preparedStmt.executeUpdate();
-
-			int b = 0;
-			for (Certification c : ex.getCertifications()) {
-
-				preparedStmt.setInt(1, ex.getCandidateId());
-				preparedStmt.setInt(2, c.getCertificatedId());
-				preparedStmt.setString(3, c.getCertificateName());
-				preparedStmt.setString(4, c.getCertificateDate());
-				preparedStmt.setString(5, c.getCertificateRank());
-				b = preparedStmt.executeUpdate();
+				resultSet.moveToInsertRow();
+				resultSet.updateInt(1, id);
+				resultSet.updateString(2, ex.getCandidate_type().toString());
+				resultSet.updateInt(3, ex.getExpInYear());
+				resultSet.updateString(4, ex.getProSkill());
+				resultSet.insertRow();
+				logger.info(query);
+				CertificationDAO.saveCertificate(ex.getCertifications(), id);	
 			}
-			if (a > 0 && b > 0) {
-				return true;
-			} else
-				return false;
-			// execute the preparedstatement
-
+			
+			return true;
 		} catch (Exception e) {
-			System.err.println("Got an exception!");
+			logger.error("Something Wrong!", e);
 			e.printStackTrace();
-
+			return false;
 		} finally {
 			try {
 				if (conn != null)
@@ -82,66 +70,47 @@ public class ExpericenceDAO {
 					preparedStmt.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
+				logger.error("Something Wrong!", e);
 				e.printStackTrace();
 			}
 		}
 
-		return false;
 	}
 
 	/**
-	 * @return list experiences that get from database @throws
-	 * @throws BirthdayException
-	 * @throws ParseException
+	 * @return list experiences that get from database
 	 */
 	public static List<Experience> getEx() {
 
 		List<Experience> list = new ArrayList<Experience>();
+
 		try {
 			conn = JdbcConection.getInstance().getConnection();
-			String query1 = SQLCommand.EXPERIENCE_QUERY_FIND_ALL;
-			String query2 = SQLCommand.CERTIFICATEEX_QUERY_FIND_ALL;
+			String query = SQLCommand.EXPERIENCE_JOIN_CANDIDATE;
+			preparedStmt = conn.prepareStatement(query);
+			resultSet = preparedStmt.executeQuery();
 
-			Experience ex;
-			Certification certification;
-			List<Certification> listC = new ArrayList<Certification>();
-			preparedStmt = conn.prepareStatement(query1);
-
-			ResultSet rs = preparedStmt.executeQuery();
-
-			// get Experiences
-			while (rs.next()) {
-				ex = new Experience();
-				ex.setCandidateId(rs.getInt("CandidateId"));
-				ex.setFullName(rs.getString("fullname"));
-				ex.setBirthDay(rs.getString("birthday"));
-				ex.setPhone(rs.getString("phone"));
-				ex.setEmail(rs.getString("email"));
-				ex.setExpInYear(rs.getInt("experien_in_year"));
-				ex.setProSkill((rs.getString("profecsional_skill")));
-
-				// get certifications
-				preparedStmt = conn.prepareStatement(query2);
-				preparedStmt.setInt(1, ex.getCandidateId());
-
-				ResultSet rs2 = preparedStmt.executeQuery();
-
-				while (rs2.next()) {
-					certification = new Certification();
-					certification.setCertificatedId(rs2.getInt(1));
-					certification.setCertificateName(rs2.getString(2));
-					certification.setCertificateRank(rs2.getString(3));
-					certification.setCertificateDate(rs2.getString(4));
-					listC.add(certification);
-				}
-				ex.setCertifications(listC);
+			while (resultSet.next()) {
+				List<Certification> certifications = new ArrayList<>();
+				Experience ex = new Experience();
+				int id = resultSet.getInt("idEx");
+				ex.setCandidateId(resultSet.getInt("CandidateId"));
+				ex.setFullName(resultSet.getString("fullname"));
+				ex.setBirthDay(resultSet.getString("birthday"));
+				ex.setPhone(resultSet.getString("phone"));
+				ex.setEmail(resultSet.getString("email"));
 				ex.setCandidate_type(Candidate_type.EXPERIENCE);
+				ex.setExpInYear(resultSet.getInt("ExpInYear"));
+				ex.setProSkill((resultSet.getString("ProSkill")));
+				certifications = CertificationDAO.getCertifications(id);
+				ex.setCertifications(certifications);
 				list.add(ex);
-
 			}
+			logger.info(query);
 
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
+			logger.error("Something Wrong!", e);
 			e.printStackTrace();
 		} finally {
 			try {
@@ -151,6 +120,7 @@ public class ExpericenceDAO {
 					preparedStmt.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
+				logger.error("Something Wrong!", e);
 				e.printStackTrace();
 			}
 		}
@@ -159,47 +129,39 @@ public class ExpericenceDAO {
 	}
 
 	/**
-	 * @param ex, id
-	 * @return true if edit success, otherwise return false
+	 * @param id
+	 * @return true an Experience find from database
 	 */
-	public static boolean editEx(Experience ex, int id) {
+	public static Experience getOneEx(int id) {
 
+		String query = SQLCommand.EXPERIENCE_QUERY_FIND_ONE;
+		Experience ex = new Experience();
 		try {
 			conn = JdbcConection.getInstance().getConnection();
-
-			String query = SQLCommand.EXPERIENCE_QUERY_EDIT_BY_ID;
-			String query2 = SQLCommand.CERTIFICATEEX_QUERY_EDIT_BY_ID;
-
 			preparedStmt = conn.prepareStatement(query);
-			// PreparedStatement
+			preparedStmt.setInt(1, id);
+			
+			resultSet = preparedStmt.executeQuery();
+			System.out.println(preparedStmt.toString());
 
-			preparedStmt.setString(1, ex.getFullName());
-			preparedStmt.setString(2, ex.getBirthDay());
-			preparedStmt.setString(3, ex.getPhone());
-			preparedStmt.setString(4, ex.getEmail());
-			preparedStmt.setInt(5, ex.getExpInYear());
-			preparedStmt.setString(6, ex.getProSkill());
-			preparedStmt.setInt(7, id);
-			int a = preparedStmt.executeUpdate();
-
-			preparedStmt = conn.prepareStatement(query2);
-			int b = 0;
-
-			for (Certification c : ex.getCertifications()) {
-				preparedStmt.setInt(1, c.getCertificatedId());
-				preparedStmt.setString(2, c.getCertificateName());
-				preparedStmt.setString(3, c.getCertificateDate());
-				preparedStmt.setString(4, c.getCertificateRank());
-				preparedStmt.setInt(5, id);
-				b = preparedStmt.executeUpdate();
+			while (resultSet.next()) {
+				List<Certification> certifications = new ArrayList<>();
+				ex.setCandidateId(resultSet.getInt("CandidateId"));
+				ex.setFullName(resultSet.getString("fullname"));
+				ex.setBirthDay(resultSet.getString("birthday"));
+				ex.setPhone(resultSet.getString("phone"));
+				ex.setEmail(resultSet.getString("email"));
+				ex.setCandidate_type(Candidate_type.EXPERIENCE);
+				ex.setExpInYear(resultSet.getInt("ExpInYear"));
+				ex.setProSkill((resultSet.getString("ProSkill")));
+				certifications = CertificationDAO.getCertifications(id);
+				ex.setCertifications(certifications);
 			}
-			if (a > 0 && b > 0) {
-				return true;
-			} else
-				return false;
+			logger.info(query);
 
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
+			logger.error("Something Wrong!", e);
 			e.printStackTrace();
 		} finally {
 			try {
@@ -209,9 +171,60 @@ public class ExpericenceDAO {
 					preparedStmt.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
+				logger.error("Something Wrong!", e);
 				e.printStackTrace();
 			}
 		}
-		return false;
+
+		return ex;
+	}
+
+	/**
+	 * @param ex
+	 * @param id
+	 * @return true if edit experience success, otherwise return false
+	 */
+	public static boolean editEx(Experience ex, int id) {
+			
+		try {
+			if (CandidateDAO.editC(ex, id)) {
+				String query = SQLCommand.EXPERIENCE_QUERY_FIND_ONE;
+				conn = JdbcConection.getInstance().getConnection();
+				preparedStmt = conn.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+				preparedStmt.setInt(1, id);
+				resultSet = preparedStmt.executeQuery();
+
+				while (resultSet.next()) {
+					resultSet.updateInt(1, id);
+					resultSet.updateString(2, ex.getCandidate_type().toString());
+					resultSet.updateInt(3, ex.getExpInYear());
+					resultSet.updateString(4, ex.getProSkill());
+					resultSet.insertRow();
+
+				}
+				logger.info(query);
+				CertificationDAO.editCertificate(ex.getCertifications(), id);
+
+			}
+			
+			return true;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			logger.error("Something Wrong!", e);
+			e.printStackTrace();
+			return false;
+		} finally {
+			try {
+				if (conn != null)
+					conn.close();
+				if (preparedStmt != null)
+					preparedStmt.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				logger.error("Something Wrong!", e);
+				e.printStackTrace();
+			}
+		}
+
 	}
 }

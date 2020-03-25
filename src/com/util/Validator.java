@@ -47,25 +47,20 @@ public class Validator {
 	 * @param birthday
 	 * @return true if birthday is valid
 	 * @throws BirthdayException if birthday < 1990 && birthday > now date
+	 * @throws ParseException
 	 */
-	public static boolean isBirthDay(String birthday) throws BirthdayException {
+	public static boolean isBirthDay(String birthday) throws BirthdayException, ParseException {
 
-		@SuppressWarnings("deprecation")
-		Date d = new Date(1990, 01, 01);
-		Date date;
-		try {
-			date = new SimpleDateFormat("yyyy-MM-dd").parse(birthday);
-			if (date.after(d) && date.before(new Date())) {
-				return true;
-			} else {
-				throw new BirthdayException();
-			}
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		String d1990 = "1990/01/01";
+		Date day1990;
+		Date b;
+		b = new SimpleDateFormat("yyyy/MM/dd").parse(birthday);
+		day1990 = new SimpleDateFormat("yyyy/MM/dd").parse(d1990);
+		if (b.after(day1990) && b.before(new Date())) {
+			return true;
+		} else {
+			throw new BirthdayException();
 		}
-
-		return false;
 
 	}
 

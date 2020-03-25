@@ -182,7 +182,7 @@ public abstract class Candidate {
 		System.out.println("Enter FullName : ");
 		fullName = sc.nextLine();
 
-		System.out.println("Enter BirthDay : ");
+		System.out.println("Enter birthday(yyyy/MM/dd) : ");
 		birthDay = UserInputUtil.inputBirthDay(sc);
 
 		System.out.println("Enter Phone : ");
@@ -200,7 +200,7 @@ public abstract class Candidate {
 			certification = new Certification();
 			System.out.println("Certificate " + (i + 1) + " :");
 			System.out.println("Enter Certification Id : ");
-			certification.setCertificatedId(Integer.valueOf(sc.nextLine()));
+			certification.setCertificatedId(UserInputUtil.inputTypeInt(sc));
 
 			System.out.println("Enter Certification Date : ");
 			certification.setCertificateDate(sc.nextLine());
@@ -208,7 +208,7 @@ public abstract class Candidate {
 			System.out.println("Enter Certification Name : ");
 			certification.setCertificateName(sc.nextLine());
 
-			System.out.println("Enter Certification Id : ");
+			System.out.println("Enter Certification Rank : ");
 			certification.setCertificateRank(sc.nextLine());
 
 			certifications.add(certification);

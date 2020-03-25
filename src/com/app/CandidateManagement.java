@@ -33,13 +33,14 @@ public class CandidateManagement {
 		// TODO Auto-generated method stub
 		Scanner sc = new Scanner(System.in);
 		String choice = "";
+		// System.out.println(ExpericenceDAO.getOneEx(55).showInfor());
 
 		do {
 			getMenu();
 			choice = sc.nextLine();
 			choice = choice.trim();
 
-			CandidateDAO candidateService;
+			CandidateDAO candidateDao;
 			List<Candidate> list;
 			Experience experience;
 			InternShip intership;
@@ -57,19 +58,28 @@ public class CandidateManagement {
 				case ("Experience"):
 					experience = new Experience();
 					experience.inputInf(sc);
-					ExpericenceDAO.saveEx(experience);
+					if (ExpericenceDAO.saveEx(experience)) {
+						System.out.println("Success!");
+					} else
+						System.out.println("Fail");
 					break;
 
 				case ("Internship"):
 					intership = new InternShip();
 					intership.inputInf(sc);
-					IntershipDAO.saveIs(intership);
+					if (IntershipDAO.saveIs(intership)) {
+						System.out.println("Success!");
+					} else
+						System.out.println("Fail");
 					break;
 
 				case ("Fresher"):
 					fresher = new Fresher();
 					fresher.inputInf(sc);
-					FresherDAO.saveFs(fresher);
+					if (FresherDAO.saveFs(fresher)) {
+						System.out.println("Success!");
+					} else
+						System.out.println("Fail");
 					break;
 
 				default:
@@ -80,8 +90,8 @@ public class CandidateManagement {
 
 			// get all candidates with distinct id
 			case ("2"):
-				candidateService = new CandidateDAO();
-				list = candidateService.getAllWithDistinctId();
+				candidateDao = new CandidateDAO();
+				list = candidateDao.getAllWithDistinctId();
 
 				if (!list.isEmpty()) {
 					list.forEach((c) -> System.out.println(c.showInfor()));
@@ -91,8 +101,8 @@ public class CandidateManagement {
 
 			// sort all candidates with distinct id
 			case ("3"):
-				candidateService = new CandidateDAO();
-				list = candidateService.sortList(candidateService.getAllWithDistinctId());
+				candidateDao = new CandidateDAO();
+				list = candidateDao.sortList(candidateDao.getAllWithDistinctId());
 
 				if (!list.isEmpty()) {
 					list.forEach((c) -> System.out.println(c.showInfor()));
@@ -107,9 +117,9 @@ public class CandidateManagement {
 				int id = UserInputUtil.inputTypeInt(sc);
 
 				// check if id is exist -> edit
-				candidateService = new CandidateDAO();
-				if (candidateService.searchID(id)) {
-					Candidate c = candidateService.getCandidateByIDs(id);
+				candidateDao = new CandidateDAO();
+				if (candidateDao.searchID(id)) {
+					Candidate c = candidateDao.getCandidateByIDs(id);
 					System.out.println("Change information of candidate : ");
 
 					if (c.getCandidate_type().equals(Candidate_type.EXPERIENCE)) {
@@ -156,14 +166,19 @@ public class CandidateManagement {
 				System.out.println("Enter CandidateID : ");
 				int candidateId = UserInputUtil.inputTypeInt(sc);
 
-				candidateService = new CandidateDAO();
-				System.out.println(candidateService.getCandidateByIDs(candidateId).showInfor());
+				candidateDao = new CandidateDAO();
+				if (candidateDao.searchID(candidateId)) {
+					// Candidate candidate = candidateDao.getCandidateByIDs(candidateId);
+					System.out.println(candidateDao.getCandidateByIDs(candidateId).showInfor());
+				} else
+					System.out.println("Not Found!");
+
 				break;
 
 			// get all full name of candidates
 			case ("6"):
-				candidateService = new CandidateDAO();
-				System.out.println(candidateService.getAllFullName());
+				candidateDao = new CandidateDAO();
+				System.out.println(candidateDao.getAllFullName());
 				break;
 
 			// end program

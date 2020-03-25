@@ -11,6 +11,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import com.enums.Candidate_type;
 import com.model.Certification;
 import com.model.InternShip;
@@ -23,50 +25,45 @@ import com.util.SQLCommand;
  */
 public class IntershipDAO {
 
+	final static Logger logger = Logger.getLogger(FresherDAO.class);
+
 	private static Connection conn;
 	private static PreparedStatement preparedStmt;
+	private static ResultSet resultSet;
 
 	/**
 	 * @param is
-	 * @return true if save Internship success, otherwise return false
-	 * @throws ClassNotFoundException
+	 * @return true if save internship success, otherwise return false
 	 */
 	public static boolean saveIs(InternShip is) {
+		int id = CandidateDAO.saveC(is);
 		try {
-			conn = JdbcConection.getInstance().getConnection();
-			// the sql insert statement
-			String query = SQLCommand.INTERNSHIP_QUERY_FIND_ALL;
-			String query2 = SQLCommand.CERTIFICATEIS_QUERY_FIND_ALL;
+			if (id > 0) {
+				conn = JdbcConection.getInstance().getConnection();
+				String query = SQLCommand.INTERNSHIP_QUERY_FIND_ONE;
 
-			System.out.println(query);
+				preparedStmt = conn.prepareStatement(query, ResultSet.TYPE_SCROLL_SENSITIVE,
+						ResultSet.CONCUR_UPDATABLE);
+				preparedStmt.setInt(1, id);
+				resultSet = preparedStmt.executeQuery();
 
-			// create the sql insert preparedstatement
-			preparedStmt = conn.prepareStatement(query);
+				resultSet.moveToInsertRow();
+				resultSet.updateInt(1, id);
+				resultSet.updateString(2, is.getCandidate_type().toString());
+				resultSet.updateString(3, is.getMajors());
+				resultSet.updateString(4, is.getSemester());
+				resultSet.updateString(5, is.getUniversity_name());
+				resultSet.insertRow();
 
-			preparedStmt.setString(1, is.getFullName());
-			preparedStmt.setString(2, is.getBirthDay());
-			preparedStmt.setString(3, is.getPhone());
-			preparedStmt.setString(4, is.getEmail());
-			preparedStmt.setString(5, is.getMajors());
-			preparedStmt.setString(6, is.getSemester());
-			preparedStmt.setString(7, is.getUniversity_name());
-			preparedStmt.setInt(8, is.getCandidateId());
-			preparedStmt.executeUpdate();
-
-			preparedStmt = conn.prepareStatement(query2);
-			for (Certification c : is.getCertifications()) {
-				preparedStmt.setInt(1, c.getCertificatedId());
-				preparedStmt.setString(2, c.getCertificateName());
-				preparedStmt.setString(3, c.getCertificateRank());
-				preparedStmt.setString(4, c.getCertificateDate());
-				preparedStmt.setInt(5, is.getCandidateId());
-				preparedStmt.executeUpdate();
+				logger.info(query);
+				CertificationDAO.saveCertificate(is.getCertifications(), id);
+				return true;
 			}
 
 		} catch (Exception e) {
-			System.err.println("Got an exception!");
+			logger.error(e.toString());
 			e.printStackTrace();
-			return false;
+
 		} finally {
 			try {
 				if (conn != null)
@@ -78,55 +75,44 @@ public class IntershipDAO {
 				e.printStackTrace();
 			}
 		}
+		return false;
 
-		return true;
 	}
 
 	/**
-	 * @return list InternShip
+	 * @return internship's list from database
 	 */
 	public static List<InternShip> getIs() {
-		List<InternShip> list = new ArrayList<InternShip>();
+
+		List<InternShip> list = new ArrayList<>();
 		try {
 			conn = JdbcConection.getInstance().getConnection();
-
-			String query = SQLCommand.INTERNSHIP_QUERY_FIND_ALL;
-			String query2 = SQLCommand.CERTIFICATEIS_QUERY_FIND_ALL;
-
-			List<Certification> listC = new ArrayList<Certification>();
+			String query = SQLCommand.INTERNSHIP_JOIN_CANDIDATE;
 			preparedStmt = conn.prepareStatement(query);
-			ResultSet rs = preparedStmt.executeQuery();
+			resultSet = preparedStmt.executeQuery();
 
-			while (rs.next()) {
-				InternShip ex = new InternShip();
-				Certification certification = new Certification();
-				ex.setFullName(rs.getString("fullname"));
-				ex.setBirthDay(rs.getString("birthday"));
-				ex.setPhone(rs.getString("phone"));
-				ex.setEmail(rs.getString("email"));
-				ex.setMajors(rs.getString("Majors"));
-				ex.setSemester((rs.getString("Semester")));
-				ex.setUniversity_name(rs.getString("University_name"));
-
-				preparedStmt = conn.prepareStatement(query2);
-				preparedStmt.setInt(1, ex.getCandidateId());
-				ResultSet rs2 = preparedStmt.executeQuery();
-				// rs = preparedStmt2.executeQuery();
-
-				while (rs2.next()) {
-					certification = new Certification();
-					certification.setCertificatedId(rs2.getInt(1));
-					certification.setCertificateName(rs2.getString(2));
-					certification.setCertificateRank(rs2.getString(3));
-					certification.setCertificateDate(rs2.getString(4));
-					listC.add(certification);
-				}
-				ex.setCandidate_type(Candidate_type.INTERNSHIP);
-				list.add(ex);
-
+			while (resultSet.next()) {
+				List<Certification> certifications = new ArrayList<>();
+				InternShip is = new InternShip();
+				int id = resultSet.getInt("idIs");
+				is.setCandidateId(resultSet.getInt("CandidateId"));
+				is.setFullName(resultSet.getString("fullname"));
+				is.setBirthDay(resultSet.getString("birthday"));
+				is.setPhone(resultSet.getString("phone"));
+				is.setEmail(resultSet.getString("email"));
+				is.setCandidate_type(Candidate_type.INTERNSHIP);
+				is.setMajors(resultSet.getString("Majors"));
+				is.setSemester(resultSet.getString("Semester"));
+				is.setUniversity_name((resultSet.getString("University")));
+				certifications = CertificationDAO.getCertifications(id);
+				is.setCertifications(certifications);
+				list.add(is);
 			}
+			logger.info(query);
+
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
+			logger.error(e.toString());
 			e.printStackTrace();
 		} finally {
 			try {
@@ -144,47 +130,37 @@ public class IntershipDAO {
 	}
 
 	/**
-	 * @param ex
+	 * @param is
 	 * @param id
-	 * @return true if edit success , otherwise return false
+	 * @return true if edit internship success, otherwise return false
 	 */
-	public static boolean editIs(InternShip ex, int id) {
+	public static boolean editIs(InternShip is, int id) {
+
 		try {
-			conn = JdbcConection.getInstance().getConnection();
+			if (CandidateDAO.editC(is, id)) {
+				conn = JdbcConection.getInstance().getConnection();
+				String query = SQLCommand.EXPERIENCE_QUERY_FIND_ONE;
 
-			String query = SQLCommand.INTERNSHIP_QUERY_EDIT_BY_ID;
-			String query2 = SQLCommand.CERTIFICATEIS_QUERY_EDIT_BY_ID;
+				preparedStmt = conn.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+				preparedStmt.setInt(1, id);
+				resultSet = preparedStmt.executeQuery();
 
-			preparedStmt = conn.prepareStatement(query);
-			preparedStmt.setString(1, ex.getFullName());
-			preparedStmt.setString(2, ex.getBirthDay());
-			preparedStmt.setString(3, ex.getPhone());
-			preparedStmt.setString(4, ex.getEmail());
-			preparedStmt.setString(5, ex.getMajors());
-			preparedStmt.setString(6, ex.getSemester());
-			preparedStmt.setString(7, ex.getUniversity_name());
-			preparedStmt.setInt(8, id);
-			int a = preparedStmt.executeUpdate();
+				resultSet.updateInt(1, id);
+				resultSet.updateString(2, is.getCandidate_type().toString());
+				resultSet.updateString(3, is.getMajors());
+				resultSet.updateString(4, is.getSemester());
+				resultSet.updateString(5, is.getUniversity_name());
+				resultSet.insertRow();
 
-			preparedStmt = conn.prepareStatement(query2);
-			int b = 0;
-			for (Certification c : ex.getCertifications()) {
-				preparedStmt.setInt(1, c.getCertificatedId());
-				preparedStmt.setString(2, c.getCertificateName());
-				preparedStmt.setString(3, c.getCertificateDate());
-				preparedStmt.setString(4, c.getCertificateRank());
-				preparedStmt.setInt(5, id);
-				b = preparedStmt.executeUpdate();
+				logger.info(query);
+				if (CertificationDAO.editCertificate(is.getCertifications(), id))
+					return true;
 			}
-			if (a > 0 && b > 0) {
-				return true;
-			} else
-				return false;
 
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-
+			logger.error(e.toString());
 		} finally {
 			try {
 				if (conn != null)
@@ -197,5 +173,6 @@ public class IntershipDAO {
 			}
 		}
 		return false;
+
 	}
 }
