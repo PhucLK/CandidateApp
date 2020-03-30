@@ -16,6 +16,9 @@ public class Fresher extends Candidate {
 	private String graduation_rank;
 	private String education;
 
+	/**
+	 * 
+	 */
 	public Fresher() {
 		super();
 	}

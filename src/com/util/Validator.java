@@ -27,7 +27,7 @@ public class Validator {
 	 * @return true if phone number is valid
 	 */
 	public static boolean isPhoneNumber(String phone) {
-		pattern = Pattern.compile(Constant.INCORECT_PHONE_NUMBER);
+		pattern = Pattern.compile(Constant.PHONE_NUMBER);
 		matcher = pattern.matcher(phone);
 		return matcher.matches();
 	}
@@ -38,7 +38,7 @@ public class Validator {
 	 * @throws MailException if email not valid
 	 */
 	public static boolean isEmail(String email) throws MailException {
-		pattern = Pattern.compile(Constant.INCORECT_EMAIL);
+		pattern = Pattern.compile(Constant.EMAIL);
 		matcher = pattern.matcher(email);
 		return matcher.matches();
 	}
@@ -46,7 +46,7 @@ public class Validator {
 	/**
 	 * @param birthday
 	 * @return true if birthday is valid
-	 * @throws BirthdayException if birthday < 1990 && birthday > now date
+	 * @throws BirthdayException if birthday < 1990 or birthday > current date
 	 * @throws ParseException
 	 */
 	public static boolean isBirthDay(String birthday) throws BirthdayException, ParseException {

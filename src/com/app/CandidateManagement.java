@@ -33,13 +33,13 @@ public class CandidateManagement {
 		// TODO Auto-generated method stub
 		Scanner sc = new Scanner(System.in);
 		String choice = "";
-		// System.out.println(ExpericenceDAO.getOneEx(55).showInfor());
-
+		
 		do {
 			getMenu();
 			choice = sc.nextLine();
 			choice = choice.trim();
-
+			
+			;
 			CandidateDAO candidateDao;
 			List<Candidate> list;
 			Experience experience;
@@ -55,7 +55,7 @@ public class CandidateManagement {
 
 				switch (cadidate_type) {
 
-				case ("Experience"):
+				case ("1"):
 					experience = new Experience();
 					experience.inputInf(sc);
 					if (ExpericenceDAO.saveEx(experience)) {
@@ -64,7 +64,7 @@ public class CandidateManagement {
 						System.out.println("Fail");
 					break;
 
-				case ("Internship"):
+				case ("2"):
 					intership = new InternShip();
 					intership.inputInf(sc);
 					if (IntershipDAO.saveIs(intership)) {
@@ -73,7 +73,7 @@ public class CandidateManagement {
 						System.out.println("Fail");
 					break;
 
-				case ("Fresher"):
+				case ("3"):
 					fresher = new Fresher();
 					fresher.inputInf(sc);
 					if (FresherDAO.saveFs(fresher)) {
@@ -84,6 +84,7 @@ public class CandidateManagement {
 
 				default:
 					System.out.println("Please choose a correct candidate type !");
+					System.out.println("Experience(1) | Internship(2) | Fresher(3)");
 					break;
 				}
 				break;
@@ -105,7 +106,7 @@ public class CandidateManagement {
 				list = candidateDao.sortList(candidateDao.getAllWithDistinctId());
 
 				if (!list.isEmpty()) {
-					list.forEach((c) -> System.out.println(c.showInfor()));
+					list.forEach((c) -> System.out.println(c.showInfor())); 
 				} else
 					System.out.println("Empty lists!");
 				break;
@@ -168,7 +169,7 @@ public class CandidateManagement {
 
 				candidateDao = new CandidateDAO();
 				if (candidateDao.searchID(candidateId)) {
-					// Candidate candidate = candidateDao.getCandidateByIDs(candidateId);
+
 					System.out.println(candidateDao.getCandidateByIDs(candidateId).showInfor());
 				} else
 					System.out.println("Not Found!");
@@ -201,7 +202,7 @@ public class CandidateManagement {
 		System.out.println("=================MENU================");
 		System.out.println("1. Save a candidate");
 		System.out.println("2. Show list the candidates");
-		System.out.println("3. Sortlist the candidates");
+		System.out.println("3. Sort list the candidates");
 		System.out.println("4. Edit a candidate");
 		System.out.println("5. Find candidate by CandidateID");
 		System.out.println("6. Print full name of the candidates");

@@ -51,7 +51,7 @@ public class BasicConnectionPool implements ConnectionPool {
 	 * @param url
 	 * @param user
 	 * @param password
-	 * @return
+	 * @return new BasicConnectionPool
 	 * @throws SQLException
 	 */
 	public static BasicConnectionPool create(String url, String user, String password) throws SQLException {

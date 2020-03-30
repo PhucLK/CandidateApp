@@ -45,7 +45,6 @@ public abstract class Candidate {
 	public Candidate(int candidateId, String fullName, String birthDay, String phone, String email,
 			Candidate_type candidate_type, List<Certification> certifications) {
 		super();
-		candidate_count++;
 		this.candidateId = candidateId;
 		this.fullName = fullName;
 		this.birthDay = birthDay;
@@ -250,9 +249,7 @@ public abstract class Candidate {
 		// TODO Auto-generated method stub
 		if (obj == this)
 			return true;
-		if (obj == null)
-			return false;
-		if (this.getClass() != obj.getClass())
+		if (obj == null || this.getClass() != obj.getClass())
 			return false;
 
 		Candidate c = (Candidate) obj;

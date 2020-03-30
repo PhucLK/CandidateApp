@@ -18,8 +18,7 @@ public class MailException extends Exception {
 	}
 
 	/**
-	 * @param email
-	 * @return true if email is correct otherwise return false
+	 * @param message
 	 */
 	public MailException(String message) {
 		super(message);

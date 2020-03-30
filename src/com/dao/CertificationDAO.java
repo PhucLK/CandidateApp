@@ -52,6 +52,7 @@ public class CertificationDAO {
 				resultSet.updateString(5, certification.getCertificateDate());
 				resultSet.insertRow();
 			}
+			resultSet.close();
 			logger.info(query);
 
 			return true;
@@ -97,6 +98,7 @@ public class CertificationDAO {
 					resultSet.insertRow();
 				}
 			}
+			resultSet.close();
 			logger.info(query);
 			return true;
 		} catch (Exception e) {
@@ -137,6 +139,7 @@ public class CertificationDAO {
 				certification.setCertificateDate(resultSet.getString(5));
 				certifications.add(certification);
 			}
+			resultSet.close();
 			logger.info(query);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block

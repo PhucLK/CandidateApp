@@ -56,7 +56,7 @@ public class ExpericenceDAO {
 				logger.info(query);
 				CertificationDAO.saveCertificate(ex.getCertifications(), id);	
 			}
-			
+			resultSet.close();
 			return true;
 		} catch (Exception e) {
 			logger.error("Something Wrong!", e);
@@ -106,6 +106,7 @@ public class ExpericenceDAO {
 				ex.setCertifications(certifications);
 				list.add(ex);
 			}
+			resultSet.close();
 			logger.info(query);
 
 		} catch (SQLException e) {
@@ -126,57 +127,6 @@ public class ExpericenceDAO {
 		}
 
 		return list;
-	}
-
-	/**
-	 * @param id
-	 * @return true an Experience find from database
-	 */
-	public static Experience getOneEx(int id) {
-
-		String query = SQLCommand.EXPERIENCE_QUERY_FIND_ONE;
-		Experience ex = new Experience();
-		try {
-			conn = JdbcConection.getInstance().getConnection();
-			preparedStmt = conn.prepareStatement(query);
-			preparedStmt.setInt(1, id);
-			
-			resultSet = preparedStmt.executeQuery();
-			System.out.println(preparedStmt.toString());
-
-			while (resultSet.next()) {
-				List<Certification> certifications = new ArrayList<>();
-				ex.setCandidateId(resultSet.getInt("CandidateId"));
-				ex.setFullName(resultSet.getString("fullname"));
-				ex.setBirthDay(resultSet.getString("birthday"));
-				ex.setPhone(resultSet.getString("phone"));
-				ex.setEmail(resultSet.getString("email"));
-				ex.setCandidate_type(Candidate_type.EXPERIENCE);
-				ex.setExpInYear(resultSet.getInt("ExpInYear"));
-				ex.setProSkill((resultSet.getString("ProSkill")));
-				certifications = CertificationDAO.getCertifications(id);
-				ex.setCertifications(certifications);
-			}
-			logger.info(query);
-
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			logger.error("Something Wrong!", e);
-			e.printStackTrace();
-		} finally {
-			try {
-				if (conn != null)
-					conn.close();
-				if (preparedStmt != null)
-					preparedStmt.close();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				logger.error("Something Wrong!", e);
-				e.printStackTrace();
-			}
-		}
-
-		return ex;
 	}
 
 	/**
@@ -204,7 +154,7 @@ public class ExpericenceDAO {
 				}
 				logger.info(query);
 				CertificationDAO.editCertificate(ex.getCertifications(), id);
-
+				resultSet.close();
 			}
 			
 			return true;

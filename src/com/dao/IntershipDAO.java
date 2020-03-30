@@ -57,6 +57,7 @@ public class IntershipDAO {
 
 				logger.info(query);
 				CertificationDAO.saveCertificate(is.getCertifications(), id);
+				resultSet.close();
 				return true;
 			}
 
@@ -108,6 +109,7 @@ public class IntershipDAO {
 				is.setCertifications(certifications);
 				list.add(is);
 			}
+			resultSet.close();
 			logger.info(query);
 
 		} catch (SQLException e) {
@@ -153,6 +155,7 @@ public class IntershipDAO {
 				resultSet.insertRow();
 
 				logger.info(query);
+				resultSet.close();
 				if (CertificationDAO.editCertificate(is.getCertifications(), id))
 					return true;
 			}

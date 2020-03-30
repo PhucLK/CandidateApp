@@ -25,7 +25,7 @@ public class TestConnectionPool {
 	}
 
 	/**
-	 * @return
+	 * @return connection pool
 	 * @throws IOException
 	 */
 	public static Connection getCon() throws IOException {

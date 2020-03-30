@@ -10,14 +10,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -65,7 +62,7 @@ public class CandidateDAO {
 			while (resultSet.next()) {
 				id = resultSet.getInt(1);
 			}
-			
+			resultSet.close();
 			logger.info(query);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -109,7 +106,7 @@ public class CandidateDAO {
 				resultSet.updateString(6, candidate.getEmail());
 				resultSet.updateRow();
 			}
-
+			resultSet.close();
 			logger.info(query);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -135,11 +132,8 @@ public class CandidateDAO {
 	 * @return all candidates in database that distinct id
 	 */
 	public List<Candidate> getAllWithDistinctId() {
-		Set<Candidate> distinctList = new HashSet<>();
-		getAll().forEach((c) -> distinctList.add(c));
-		List<Candidate> listN = new ArrayList<>(distinctList);
-		return listN;
 
+		return getAll().stream().distinct().collect(Collectors.toList());
 	}
 
 	/**
@@ -181,9 +175,7 @@ public class CandidateDAO {
 	public Candidate getCandidateByIDs(int id) {
 
 		Candidate c = getAll().stream().filter((i) -> (i.getCandidateId() == id)).distinct().findFirst().get();
-
 		return c;
-
 	}
 
 	/**
@@ -191,9 +183,8 @@ public class CandidateDAO {
 	 * @return true if find any candidate, otherwise return false
 	 */
 	public boolean searchID(int id) {
-
 		return getAll().stream().filter((i) -> (i.getCandidateId() == id)).findAny().isPresent();
-
+		
 	}
 
 }

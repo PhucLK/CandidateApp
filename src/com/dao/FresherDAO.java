@@ -59,6 +59,7 @@ public class FresherDAO {
 				CertificationDAO.saveCertificate(fs.getCertifications(), id);
 
 			}
+			resultSet.close();
 			return true;
 		} catch (Exception e) {
 			logger.error(e.toString());
@@ -109,6 +110,7 @@ public class FresherDAO {
 				fs.setCertifications(certifications);
 				list.add(fs);
 			}
+			resultSet.close();
 			logger.info(query);
 
 		} catch (SQLException e) {
@@ -155,7 +157,7 @@ public class FresherDAO {
 				if (CertificationDAO.editCertificate(fs.getCertifications(), id))
 					return true;
 			}
-
+			resultSet.close();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			logger.error(e.toString());
